@@ -130,7 +130,9 @@ jobs:
                   index_content = f.read()
               
               # Find the apps-grid section
-              apps_grid_pattern = r'(<div class="apps-grid" id="apps-grid">)(.*?)(</div>)'
+              # Match from opening div to the closing div (look for closing div followed by </section>)
+              # This ensures we match the apps-grid closing, not nested app-card closings
+              apps_grid_pattern = r'(<div class="apps-grid" id="apps-grid">)(.*?)(</div>\s*\n\s*</section>)'
               match = re.search(apps_grid_pattern, index_content, re.DOTALL)
               
               if match:
