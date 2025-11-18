@@ -1,4 +1,4 @@
-name: Update README with Apps
+name: Update README and Index Page
 
 on:
   push:
@@ -10,6 +10,7 @@ on:
       - '**/Readme.md'
       - '**/'
       - '!Readme.md'
+      - '!index.html'
       - '!.github/**'
 
 jobs:
@@ -30,11 +31,12 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Update README
+      - name: Update README and Index
         run: |
           python3 << 'EOF'
           import os
           import re
+          import html
           from pathlib import Path
 
           # Directories to exclude
@@ -87,45 +89,77 @@ jobs:
           # Sort apps alphabetically
           apps.sort(key=lambda x: x['name'])
           
-          # Read current README
+          # Update README
           readme_path = Path('Readme.md')
           if not readme_path.exists():
               readme_path = Path('README.md')
           
-          if not readme_path.exists():
-              print("README.md not found!")
-              exit(1)
-          
-          with open(readme_path, 'r', encoding='utf-8') as f:
-              readme_content = f.read()
-          
-          # Find the apps section (between "## 📱 Available Apps" and next ## or ---)
-          apps_section_pattern = r'(## 📱 Available Apps\n\n)(.*?)(\n---)'
-          match = re.search(apps_section_pattern, readme_content, re.DOTALL)
-          
-          if match:
-              # Generate new apps list
-              apps_list = []
-              for app in apps:
-                  app_entry = f"### [{app['name'].replace('_', ' ')}](./{app['name']}/README.md)\n\n"
-                  if app['description']:
-                      app_entry += f"**{app['description']}**\n\n"
-                  app_entry += f"[View Full Documentation →](./{app['name']}/README.md)\n\n"
-                  apps_list.append(app_entry)
+          if readme_path.exists():
+              with open(readme_path, 'r', encoding='utf-8') as f:
+                  readme_content = f.read()
               
-              new_apps_section = ''.join(apps_list).rstrip()
+              # Find the apps section (between "## 📱 Available Apps" and next ## or ---)
+              apps_section_pattern = r'(## 📱 Available Apps\n\n)(.*?)(\n---)'
+              match = re.search(apps_section_pattern, readme_content, re.DOTALL)
               
-              # Replace the apps section
-              new_readme = readme_content[:match.start(2)] + new_apps_section + '\n' + readme_content[match.end(2):]
-          else:
-              print("Could not find apps section in README")
-              exit(1)
+              if match:
+                  # Generate new apps list
+                  apps_list = []
+                  for app in apps:
+                      app_entry = f"### [{app['name'].replace('_', ' ')}](./{app['name']}/README.md)\n\n"
+                      if app['description']:
+                          app_entry += f"**{app['description']}**\n\n"
+                      app_entry += f"[View Full Documentation →](./{app['name']}/README.md)\n\n"
+                      apps_list.append(app_entry)
+                  
+                  new_apps_section = ''.join(apps_list).rstrip()
+                  
+                  # Replace the apps section
+                  new_readme = readme_content[:match.start(2)] + new_apps_section + '\n' + readme_content[match.end(2):]
+                  
+                  # Write updated README
+                  with open(readme_path, 'w', encoding='utf-8') as f:
+                      f.write(new_readme)
+                  
+                  print(f"Updated README with {len(apps)} apps")
           
-          # Write updated README
-          with open(readme_path, 'w', encoding='utf-8') as f:
-              f.write(new_readme)
+          # Update index.html
+          index_path = Path('index.html')
+          if index_path.exists():
+              with open(index_path, 'r', encoding='utf-8') as f:
+                  index_content = f.read()
+              
+              # Find the apps-grid section
+              apps_grid_pattern = r'(<div class="apps-grid" id="apps-grid">)(.*?)(</div>)'
+              match = re.search(apps_grid_pattern, index_content, re.DOTALL)
+              
+              if match:
+                  # Generate new apps HTML
+                  apps_html = []
+                  for app in apps:
+                      app_display_name = app['name'].replace('_', ' ')
+                      app_description = app['description'] if app['description'] else 'Mobile application'
+                      # Escape HTML entities
+                      app_display_name = html.escape(app_display_name)
+                      app_description = html.escape(app_description)
+                      app_html = f'''                <div class="app-card" onclick="window.location.href='/{app['name']}/'">
+                    <h3>{app_display_name}</h3>
+                    <p class="app-description">{app_description}</p>
+                    <span class="app-link">View App →</span>
+                </div>'''
+                      apps_html.append(app_html)
+                  
+                  new_apps_html = '\n'.join(apps_html) + '\n'
+                  
+                  # Replace the apps grid content
+                  new_index = index_content[:match.start(2)] + '\n' + new_apps_html + '            ' + index_content[match.end(2):]
+                  
+                  # Write updated index.html
+                  with open(index_path, 'w', encoding='utf-8') as f:
+                      f.write(new_index)
+                  
+                  print(f"Updated index.html with {len(apps)} apps")
           
-          print(f"Updated README with {len(apps)} apps")
           for app in apps:
               print(f"  - {app['name']}")
           EOF
@@ -133,7 +167,7 @@ jobs:
       - name: Check for changes
         id: verify-changed-files
         run: |
-          if [ -n "$(git status --porcelain Readme.md README.md 2>/dev/null)" ]; then
+          if [ -n "$(git status --porcelain Readme.md README.md index.html 2>/dev/null)" ]; then
             echo "changed=true" >> $GITHUB_OUTPUT
           else
             echo "changed=false" >> $GITHUB_OUTPUT
@@ -144,7 +178,7 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add Readme.md README.md
-          git commit -m "Auto-update README: Add new apps" || exit 0
+          git add Readme.md README.md index.html
+          git commit -m "Auto-update README and index.html: Add new apps" || exit 0
           git push
 
