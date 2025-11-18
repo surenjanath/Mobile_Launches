@@ -10,13 +10,17 @@ This repository serves as a launch page hub where each mobile app has its own de
 
 ## 📱 Available Apps
 
-### [Gas Tracker App](./Gas_App/README.md)
+### [Gas App](./Gas_App/README.md)
 
-**Track every fill-up, payment, and service event from a single dashboard.**
-
-Gas Tracker is an offline-first mobile companion for monitoring your vehicle's fuel costs, MPG, service reminders, and cash flow. Log every fuel expense, keep payments organized, manage multiple vehicles, and generate insights that make it easy to lower your fuel spend.
+**Gas Tracker is an offline-first mobile companion for monitoring your vehicle's fuel costs, MPG, service reminders, and cash flow. Log every fuel expense, keep payments organized, manage multiple vehic...**
 
 [View Full Documentation →](./Gas_App/README.md)
+
+### [PriceAnalysis](./PriceAnalysis/README.md)
+
+**PriceAnalysis is a powerful mobile application that helps you track, analyze, and monitor PriceSmart product prices over time. Make informed purchasing decisions with comprehensive price analytics, tr...**
+
+[View Full Documentation →](./PriceAnalysis/README.md)
 
 ---
 
