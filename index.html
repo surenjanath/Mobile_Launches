@@ -185,6 +185,21 @@
             margin-bottom: 0.75rem;
         }
         
+        .app-card .app-screenshot {
+            width: 100%;
+            max-height: 200px;
+            object-fit: contain;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow-sm);
+            background: var(--bg-light);
+            transition: transform 0.3s ease;
+        }
+        
+        .app-card:hover .app-screenshot {
+            transform: scale(1.02);
+        }
+        
         .app-card .app-description {
             color: var(--text-gray);
             font-size: 0.95rem;
@@ -271,11 +286,13 @@
             <h2 class="section-title">📱 Available Apps</h2>
             <div class="apps-grid" id="apps-grid">
                 <div class="app-card" onclick="window.location.href='Gas_App/'">
+          <img src="Gas_App/screenshots/main_screen.png" alt="Gas Tracker App Screenshot" class="app-screenshot">
           <h3>Gas App</h3>
           <p class="app-description">Gas Tracker is an offline-first mobile companion for monitoring your vehicle&#x27;s fuel costs, MPG, service reminders, and cash flow. Log every fuel expense, keep payments organized, manage multiple vehic...</p>
           <span class="app-link">View App →</span>
       </div>
                 <div class="app-card" onclick="window.location.href='PriceAnalysis/'">
+          <img src="PriceAnalysis/screenshots/main_screen.png" alt="PriceAnalysis App Screenshot" class="app-screenshot">
           <h3>PriceAnalysis</h3>
           <p class="app-description">PriceAnalysis is a powerful mobile application that helps you track, analyze, and monitor PriceSmart product prices over time. Make informed purchasing decisions with comprehensive price analytics, tr...</p>
           <span class="app-link">View App →</span>

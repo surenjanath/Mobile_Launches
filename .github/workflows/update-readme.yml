@@ -106,10 +106,23 @@ jobs:
                   # Generate new apps list
                   apps_list = []
                   for app in apps:
-                      app_entry = f"### [{app['name'].replace('_', ' ')}](./{app['name']}/README.md)\n\n"
+                      app_display_name = app['name'].replace('_', ' ')
+                      app_entry = f"### [{app_display_name}](./{app['name']}/README.md)\n\n"
+                      
+                      # Check if screenshot exists
+                      screenshot_path = Path(f"{app['name']}/screenshots/main_screen.png")
+                      if screenshot_path.exists():
+                          app_entry += "<div align=\"center\">\n\n"
+                          app_entry += f"<a href=\"./{app['name']}/README.md\">\n"
+                          app_entry += f"  <img src=\"./{app['name']}/screenshots/main_screen.png\" alt=\"{app_display_name} Screenshot\" width=\"300\" style=\"max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);\">\n"
+                          app_entry += "</a>\n\n"
+                          app_entry += "*Click the screenshot to view full documentation*\n\n"
+                          app_entry += "</div>\n\n"
+                      
                       if app['description']:
                           app_entry += f"**{app['description']}**\n\n"
                       app_entry += f"[View Full Documentation →](./{app['name']}/README.md)\n\n"
+                      app_entry += "---\n\n"
                       apps_list.append(app_entry)
                   
                   new_apps_section = ''.join(apps_list).rstrip()
@@ -144,8 +157,14 @@ jobs:
                       # Escape HTML entities
                       app_display_name = html.escape(app_display_name)
                       app_description = html.escape(app_description)
+                      # Check if screenshot exists
+                      screenshot_path = Path(f"{app['name']}/screenshots/main_screen.png")
+                      screenshot_img = ""
+                      if screenshot_path.exists():
+                          screenshot_img = f'          <img src="{app["name"]}/screenshots/main_screen.png" alt="{app_display_name} App Screenshot" class="app-screenshot">\n'
+                      
                       app_html = f'''                <div class="app-card" onclick="window.location.href='{app['name']}/'">
-                    <h3>{app_display_name}</h3>
+{screenshot_img}          <h3>{app_display_name}</h3>
                     <p class="app-description">{app_description}</p>
                     <span class="app-link">View App →</span>
                 </div>'''
