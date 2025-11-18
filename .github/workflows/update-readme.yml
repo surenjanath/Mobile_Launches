@@ -142,7 +142,7 @@ jobs:
                       # Escape HTML entities
                       app_display_name = html.escape(app_display_name)
                       app_description = html.escape(app_description)
-                      app_html = f'''                <div class="app-card" onclick="window.location.href='/{app['name']}/'">
+                      app_html = f'''                <div class="app-card" onclick="window.location.href='{app['name']}/'">
                     <h3>{app_display_name}</h3>
                     <p class="app-description">{app_description}</p>
                     <span class="app-link">View App →</span>
