@@ -1,4 +1,4 @@
-gi# PriceAnalysis Mobile App
+# PriceAnalysis Mobile App
 
 <div align="center">
 
