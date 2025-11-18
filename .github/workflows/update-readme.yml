@@ -1,0 +1,150 @@
+name: Update README with Apps
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - '**/README.md'
+      - '**/Readme.md'
+      - '**/'
+      - '!Readme.md'
+      - '!.github/**'
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Update README
+        run: |
+          python3 << 'EOF'
+          import os
+          import re
+          from pathlib import Path
+
+          # Directories to exclude
+          EXCLUDE_DIRS = {'.git', '.github', '.vscode', '.idea', '__pycache__', 'node_modules', '.DS_Store'}
+          
+          # Find all directories in root that contain README.md
+          apps = []
+          root = Path('.')
+          
+          for item in root.iterdir():
+              if item.is_dir() and item.name not in EXCLUDE_DIRS and not item.name.startswith('.'):
+                  readme_path = item / 'README.md'
+                  if readme_path.exists():
+                      app_name = item.name
+                      
+                      # Try to extract description from README
+                      description = ""
+                      try:
+                          with open(readme_path, 'r', encoding='utf-8') as f:
+                              content = f.read()
+                              # Look for overview or description section
+                              overview_match = re.search(r'##\s+(?:📱\s*)?Overview\s*\n\n(.+?)(?=\n##|\n<div|$)', content, re.DOTALL | re.IGNORECASE)
+                              if overview_match:
+                                  description = overview_match.group(1).strip()
+                                  # Clean up description (remove markdown, limit length)
+                                  description = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', description)
+                                  description = re.sub(r'[*_`]', '', description)
+                                  description = ' '.join(description.split()[:30])  # Limit to ~30 words
+                                  if len(description) > 200:
+                                      description = description[:200] + '...'
+                              else:
+                                  # Fallback: get first paragraph
+                                  lines = content.split('\n')
+                                  for i, line in enumerate(lines):
+                                      if line.strip() and not line.startswith('#') and not line.startswith('[') and not line.startswith('!'):
+                                          description = line.strip()
+                                          description = re.sub(r'[*_`]', '', description)
+                                          if len(description) > 200:
+                                              description = description[:200] + '...'
+                                          break
+                      except Exception as e:
+                          print(f"Error reading {readme_path}: {e}")
+                      
+                      apps.append({
+                          'name': app_name,
+                          'path': f'./{app_name}/README.md',
+                          'description': description
+                      })
+          
+          # Sort apps alphabetically
+          apps.sort(key=lambda x: x['name'])
+          
+          # Read current README
+          readme_path = Path('Readme.md')
+          if not readme_path.exists():
+              readme_path = Path('README.md')
+          
+          if not readme_path.exists():
+              print("README.md not found!")
+              exit(1)
+          
+          with open(readme_path, 'r', encoding='utf-8') as f:
+              readme_content = f.read()
+          
+          # Find the apps section (between "## 📱 Available Apps" and next ## or ---)
+          apps_section_pattern = r'(## 📱 Available Apps\n\n)(.*?)(\n---)'
+          match = re.search(apps_section_pattern, readme_content, re.DOTALL)
+          
+          if match:
+              # Generate new apps list
+              apps_list = []
+              for app in apps:
+                  app_entry = f"### [{app['name'].replace('_', ' ')}](./{app['name']}/README.md)\n\n"
+                  if app['description']:
+                      app_entry += f"**{app['description']}**\n\n"
+                  app_entry += f"[View Full Documentation →](./{app['name']}/README.md)\n\n"
+                  apps_list.append(app_entry)
+              
+              new_apps_section = ''.join(apps_list).rstrip()
+              
+              # Replace the apps section
+              new_readme = readme_content[:match.start(2)] + new_apps_section + '\n' + readme_content[match.end(2):]
+          else:
+              print("Could not find apps section in README")
+              exit(1)
+          
+          # Write updated README
+          with open(readme_path, 'w', encoding='utf-8') as f:
+              f.write(new_readme)
+          
+          print(f"Updated README with {len(apps)} apps")
+          for app in apps:
+              print(f"  - {app['name']}")
+          EOF
+
+      - name: Check for changes
+        id: verify-changed-files
+        run: |
+          if [ -n "$(git status --porcelain Readme.md README.md 2>/dev/null)" ]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit changes
+        if: steps.verify-changed-files.outputs.changed == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add Readme.md README.md
+          git commit -m "Auto-update README: Add new apps" || exit 0
+          git push
+
