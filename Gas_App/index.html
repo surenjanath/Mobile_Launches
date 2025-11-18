@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Gas Tracker - Finally know where your gas money actually goes! Track fuel expenses, monitor MPG, and stop running on empty (data, that is). ⛽">
+    <title>Gas Tracker - Stop Running on Empty (Data, That Is) ⛽</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FFB800;
+            --primary-dark: #FF6B00;
+            --primary-light: #FFD54F;
+            --secondary: #003D82;
+            --accent: #E63946;
+            --text-dark: #1a1a1a;
+            --text-gray: #4a5568;
+            --bg-light: #FFF8E1;
+            --bg-white: #ffffff;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(255, 184, 0, 0.2);
+            --shadow-xl: 0 20px 25px -5px rgba(255, 107, 0, 0.2);
+            --shadow-2xl: 0 25px 50px -12px rgba(255, 184, 0, 0.3);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background: linear-gradient(180deg, #FFF8E1 0%, #FFECB3 100%);
+            overflow-x: hidden;
+        }
+        
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Header */
+        header {
+            background: linear-gradient(135deg, rgba(255, 248, 225, 0.98) 0%, rgba(255, 236, 179, 0.95) 100%);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(255, 184, 0, 0.15);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0.875rem 2rem;
+            transition: all 0.3s ease;
+        }
+        
+        header.scrolled {
+            box-shadow: 0 6px 30px rgba(255, 184, 0, 0.2);
+            background: linear-gradient(135deg, rgba(255, 248, 225, 0.99) 0%, rgba(255, 236, 179, 0.98) 100%);
+        }
+        
+        nav {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--secondary);
+            text-decoration: none;
+            letter-spacing: -0.5px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .logo:hover {
+            transform: scale(1.05) rotate(-2deg);
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 1.75rem;
+            list-style: none;
+        }
+        
+        .nav-links a {
+            color: var(--secondary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .nav-links a::before {
+            content: '⛽';
+            margin-right: 0.5rem;
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.3s ease;
+        }
+        
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: var(--secondary);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+        
+        .nav-links a:hover {
+            color: var(--secondary);
+            background: rgba(255, 255, 255, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .nav-links a:hover::before {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+        
+        /* Hero Section */
+        .hero {
+            max-width: 1280px;
+            margin: 3rem auto 4rem;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: 1.3fr 0.7fr;
+            gap: 3rem;
+            align-items: center;
+            position: relative;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(255, 184, 0, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: -1;
+        }
+        
+        .hero-content h1 {
+            font-size: 2.75rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+            line-height: 1.1;
+            letter-spacing: -1px;
+        }
+        
+        .hero-content h1 .gradient-text {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-gray);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+        
+        .hero-features {
+            list-style: none;
+            margin: 1.5rem 0;
+        }
+        
+        .hero-features li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.875rem;
+            font-size: 1rem;
+            color: var(--text-gray);
+            animation: fadeInUp 0.6s ease forwards;
+            opacity: 0;
+        }
+        
+        .hero-features li:nth-child(1) { animation-delay: 0.1s; }
+        .hero-features li:nth-child(2) { animation-delay: 0.2s; }
+        .hero-features li:nth-child(3) { animation-delay: 0.3s; }
+        .hero-features li:nth-child(4) { animation-delay: 0.4s; }
+        
+        .hero-features li::before {
+            content: "⛽";
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-right: 0.75rem;
+            width: 28px;
+            height: 28px;
+            background: rgba(255, 184, 0, 0.15);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            animation: pump 2s ease-in-out infinite;
+        }
+        
+        @keyframes pump {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.1) rotate(5deg); }
+        }
+        
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--secondary);
+            padding: 0.875rem 2rem;
+            border: 3px solid var(--secondary);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(255, 184, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 12px 30px rgba(255, 107, 0, 0.5);
+            border-color: var(--primary-dark);
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+        
+        .btn-secondary {
+            background: var(--secondary);
+            color: var(--primary);
+            padding: 0.875rem 2rem;
+            border: 3px solid var(--primary);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 61, 130, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: var(--secondary);
+            border-color: var(--secondary);
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(255, 184, 0, 0.4);
+        }
+        
+        .hero-image {
+            text-align: center;
+            position: relative;
+        }
+        
+        .hero-image::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 184, 0, 0.15) 0%, rgba(255, 107, 0, 0.1) 100%);
+            border-radius: 50%;
+            z-index: -1;
+            filter: blur(50px);
+        }
+        
+        .hero-image img {
+            max-width: 85%;
+            height: auto;
+            border-radius: 20px;
+            box-shadow: var(--shadow-2xl);
+            transform: perspective(1000px) rotateY(-5deg) rotateX(5deg);
+            transition: transform 0.3s ease;
+        }
+        
+        .hero-image:hover img {
+            transform: perspective(1000px) rotateY(0deg) rotateX(0deg) scale(1.02);
+        }
+        
+        /* Sections */
+        .section {
+            max-width: 1280px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+        }
+        
+        .section-title {
+            font-size: 2.25rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 0.75rem;
+            color: var(--text-dark);
+            letter-spacing: -1px;
+            position: relative;
+            display: block;
+            padding: 0 3rem;
+        }
+        
+        .section-title::before {
+            content: '⛽';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.5rem;
+            opacity: 0.4;
+            animation: pump 2s ease-in-out infinite;
+        }
+        
+        .section-title::after {
+            content: '⛽';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.5rem;
+            opacity: 0.4;
+            animation: pump 2s ease-in-out infinite 0.5s;
+        }
+        
+        @media (max-width: 768px) {
+            .section-title {
+                padding: 0 2rem;
+            }
+            
+            .section-title::before,
+            .section-title::after {
+                font-size: 1.2rem;
+            }
+        }
+        
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.1rem;
+            color: var(--text-gray);
+            margin-bottom: 2.5rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        /* How It Works */
+        .how-it-works {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2.5rem;
+        }
+        
+        .step {
+            background: var(--bg-white);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: var(--shadow-md);
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid rgba(255, 184, 0, 0.3);
+        }
+        
+        .step::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark), var(--secondary));
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .step::after {
+            content: '🚗';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.5rem;
+            opacity: 0;
+            transform: rotate(-20deg) scale(0);
+            transition: all 0.3s ease;
+        }
+        
+        .step:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: var(--shadow-xl);
+            border-color: var(--primary);
+            background: linear-gradient(135deg, #ffffff 0%, #FFF8E1 100%);
+        }
+        
+        .step:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .step:hover::after {
+            opacity: 0.2;
+            transform: rotate(0deg) scale(1);
+        }
+        
+        .step-number {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0 auto 1rem;
+            box-shadow: var(--shadow-lg);
+            border: 3px solid var(--secondary);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .step-number::before {
+            content: '⛽';
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            font-size: 1rem;
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.3s ease;
+        }
+        
+        .step:hover .step-number {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 10px 25px rgba(255, 107, 0, 0.4);
+        }
+        
+        .step:hover .step-number::before {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        .step h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.75rem;
+            color: var(--text-dark);
+            font-weight: 700;
+        }
+        
+        .step p {
+            color: var(--text-gray);
+            line-height: 1.7;
+        }
+        
+        /* Features */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2.5rem;
+        }
+        
+        .feature-card {
+            background: var(--bg-white);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 184, 0, 0.2);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: var(--shadow-xl);
+            border-color: var(--primary);
+            background: linear-gradient(135deg, #ffffff 0%, #FFF8E1 100%);
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: inline-block;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .feature-card:nth-child(even) .feature-icon {
+            animation-delay: 0.5s;
+        }
+        
+        .feature-card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.75rem;
+            color: var(--text-dark);
+            font-weight: 700;
+        }
+        
+        .feature-card p {
+            color: var(--text-gray);
+            line-height: 1.7;
+        }
+        
+        /* Screenshots */
+        .screenshots-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2.5rem;
+        }
+        
+        .screenshot-card {
+            background: var(--bg-white);
+            padding: 1.25rem;
+            border-radius: 16px;
+            box-shadow: var(--shadow-md);
+            text-align: center;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .screenshot-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-xl);
+        }
+        
+        .screenshot-card img {
+            width: 100%;
+            height: auto;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .screenshot-card:hover img {
+            transform: scale(1.05);
+        }
+        
+        .screenshot-card h4 {
+            color: var(--text-dark);
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        /* Email Forms */
+        .email-section {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 50%, var(--secondary) 100%);
+            color: white;
+            padding: 4rem 2rem;
+            border-radius: 24px;
+            margin: 4rem auto;
+            max-width: 1280px;
+            position: relative;
+            overflow: hidden;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 20px 60px rgba(255, 107, 0, 0.4);
+        }
+        
+        .email-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 500px;
+            height: 500px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            filter: blur(80px);
+        }
+        
+        .email-section::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -10%;
+            width: 400px;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            filter: blur(80px);
+        }
+        
+        .email-section h2 {
+            text-align: center;
+            font-size: 2.25rem;
+            margin-bottom: 0.75rem;
+            font-weight: 800;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .email-section > p {
+            text-align: center;
+            font-size: 1.1rem;
+            margin-bottom: 2.5rem;
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .email-forms {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            max-width: 1000px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .email-form-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 20px;
+            color: var(--text-dark);
+            box-shadow: var(--shadow-2xl);
+            transition: transform 0.3s ease;
+        }
+        
+        .email-form-card:hover {
+            transform: translateY(-4px);
+        }
+        
+        .email-form-card h3 {
+            color: var(--secondary);
+            margin-bottom: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .email-form-card p {
+            color: var(--text-gray);
+            margin-bottom: 1.5rem;
+            text-align: left;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 0.9rem;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 0.875rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(255, 184, 0, 0.2);
+        }
+        
+        .form-group input.error {
+            border-color: #ef4444;
+        }
+        
+        .form-message {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            display: none;
+            font-weight: 500;
+        }
+        
+        .form-message.success {
+            background: #d1fae5;
+            color: #065f46;
+            display: block;
+        }
+        
+        .form-message.error {
+            background: #fee2e2;
+            color: #991b1b;
+            display: block;
+        }
+        
+        /* Footer */
+        footer {
+            background: var(--text-dark);
+            color: white;
+            padding: 3rem 2rem 2rem;
+            margin-top: 4rem;
+        }
+        
+        .footer-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+        }
+        
+        .footer-section h4 {
+            margin-bottom: 1rem;
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        
+        .footer-section ul {
+            list-style: none;
+        }
+        
+        .footer-section ul li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .footer-section a {
+            color: #d1d5db;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+            font-size: 0.9rem;
+        }
+        
+        .footer-section a:hover {
+            color: white;
+            transform: translateX(4px);
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            margin-top: 2.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #9ca3af;
+            font-size: 0.9rem;
+        }
+        
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+        
+        @keyframes fuelGauge {
+            0% { transform: rotate(-45deg); }
+            50% { transform: rotate(45deg); }
+            100% { transform: rotate(-45deg); }
+        }
+        
+        .gas-pump-emoji {
+            display: inline-block;
+            animation: pump 2s ease-in-out infinite;
+        }
+        
+        /* Responsive */
+        @media (max-width: 968px) {
+            .hero {
+                grid-template-columns: 1fr;
+                text-align: center;
+                gap: 2rem;
+                margin: 2rem auto 3rem;
+            }
+            
+            .hero-image img {
+                max-width: 70%;
+            }
+            
+            .hero-content h1 {
+                font-size: 2.25rem;
+            }
+            
+            .nav-links {
+                gap: 1.5rem;
+                font-size: 0.9rem;
+            }
+            
+            .section-title {
+                font-size: 1.875rem;
+            }
+            
+            .email-forms {
+                grid-template-columns: 1fr;
+            }
+            
+            .email-section h2 {
+                font-size: 1.875rem;
+            }
+        }
+        
+        @media (max-width: 640px) {
+            header {
+                padding: 0.75rem 1rem;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .hero {
+                margin: 1.5rem auto 2.5rem;
+            }
+            
+            .hero-content h1 {
+                font-size: 1.875rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+            
+            .section {
+                margin: 3rem auto;
+            }
+            
+            .section-title {
+                font-size: 1.5rem;
+            }
+            
+            .section-subtitle {
+                font-size: 1rem;
+            }
+            
+            .cta-buttons {
+                flex-direction: column;
+            }
+            
+            .btn-primary,
+            .btn-secondary {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header id="header">
+        <nav>
+            <a href="#" class="logo">⛽ Gas&nbsp;Tracker</a>
+            <ul class="nav-links">
+                <li><a href="#features">🎯 The Goods</a></li>
+                <li><a href="#how-it-works">⚙️ How It Works</a></li>
+                <li><a href="#screenshots">📸 Eye Candy</a></li>
+                <li><a href="privacy.html">🔒 Privacy</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Stop Running on Empty <span class="gradient-text">(Data, That Is)</span> ⛽</h1>
+            <p class="hero-subtitle">Finally, an app that knows where your gas money actually goes! Track every fill-up, catch those sneaky price hikes, and never wonder "wait, did I really spend that much on gas?" again. Because let's be honest—your wallet is crying, and we're here to document it. 🚗💨😭</p>
+            <ul class="hero-features">
+                <li>Log fill-ups faster than you can say "premium or regular?"</li>
+                <li>Watch your MPG like a hawk (or at least like someone who cares about their wallet)</li>
+                <li>Manage your entire fleet—from your daily driver to that project car in the garage</li>
+                <li>Works offline because gas stations don't always have WiFi (shocking, we know)</li>
+            </ul>
+            <div class="cta-buttons">
+                <a href="#email-signup" class="btn-primary">🚀 Fuel Up & Join the Waitlist</a>
+                <a href="#how-it-works" class="btn-secondary">⛽ See How It Works</a>
+            </div>
+        </div>
+        <div class="hero-image">
+            <img src="screenshots/main_screen.png" alt="Gas Tracker app dashboard screenshot">
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="section" id="how-it-works">
+        <h2 class="section-title">How It Works (No Assembly Required)</h2>
+        <p class="section-subtitle">Four simple steps to fuel tracking nirvana. No PhD in rocket science needed! 🚀</p>
+        <div class="how-it-works">
+            <div class="step">
+                <div class="step-number">1</div>
+                <h3>🚗 Build Your Dream Garage</h3>
+                <p>Add your ride(s)—be it a beater, a beauty, or that "one day I'll fix it" project. We don't judge, we just track!</p>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <h3>⛽ Pump & Log (The Fun Part)</h3>
+                <p>Fill up, whip out your phone, and log it faster than you can say "receipt please." Works even when you're in the middle of nowhere!</p>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <h3>☁️ Sync or Go Solo</h3>
+                <p>Keep everything local like a secret agent, or sync to the cloud so your data follows you like a loyal co-pilot.</p>
+            </div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <h3>📊 Get Schooled on Your Spending</h3>
+                <p>Watch those charts reveal the truth: "Oh, so THAT'S why I'm broke." Knowledge is power (and savings)!</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="section" id="features">
+        <h2 class="section-title">Features That Don't Suck</h2>
+        <p class="section-subtitle">Everything you need to track fuel like a pro (or at least like someone who's tired of guessing)</p>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">⛽</div>
+                <h3>Know Where Your Gas Money Goes</h3>
+                <p>Log every fill-up with date, location, gallons (or liters—we're not picky), price, and mileage. Watch your wallet cry in real-time! 😭</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📈</div>
+                <h3>Charts That Tell the Truth</h3>
+                <p>Beautiful graphs showing your MPG trends, monthly spending, and which gas station is secretly robbing you blind. Data doesn't lie!</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💳</div>
+                <h3>Payment Detective Mode</h3>
+                <p>Track reimbursements, company cards, and that time your friend "forgot" to pay you back. Balance your books like a boss!</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🚗</div>
+                <h3>Unlimited Vehicles (Seriously)</h3>
+                <p>Got a fleet? We've got you. Track your daily driver, weekend warrior, and that project car that's been "almost done" for 3 years.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📡</div>
+                <h3>Works in the Middle of Nowhere</h3>
+                <p>No WiFi? No problem! Log everything offline, then sync when you're back in civilization. Your data won't judge your road trip choices.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎨</div>
+                <h3>Make It Yours</h3>
+                <p>Dark mode for night owls, custom units for metric rebels, and currencies for international fuel connoisseurs. Personalization FTW!</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Screenshots -->
+    <section class="section" id="screenshots">
+        <h2 class="section-title">See It In Action (Pretty Pictures!)</h2>
+        <p class="section-subtitle">Feast your eyes on the beauty that is organized fuel tracking. No more scribbled receipts! 📸</p>
+        <div class="screenshots-grid">
+            <div class="screenshot-card">
+                <img src="screenshots/main_screen.png" alt="Home dashboard">
+                <h4>🏠 Home Dashboard (Where the Magic Happens)</h4>
+            </div>
+            <div class="screenshot-card">
+                <img src="screenshots/product_details.png" alt="Fuel entry form">
+                <h4>📝 Fuel Entry Forms (No PhD Required)</h4>
+            </div>
+            <div class="screenshot-card">
+                <img src="screenshots/analysis_details.png" alt="Analytics overview">
+                <h4>📊 Analytics That Don't Judge (Much)</h4>
+            </div>
+        </div>
+    </section>
+
+    <!-- Email Signup Section -->
+    <section class="email-section" id="email-signup">
+        <h2>Don't Miss the Fuel-Filled Fun!</h2>
+        <p>Join the waitlist and be among the first to experience the joy of actually knowing where your gas money goes. No spam, just gas! ⛽</p>
+        <div class="email-forms">
+            <div class="email-form-card">
+                <h3>🚀 Beta Tester (The Cool Kids)</h3>
+                <p>Get early access, test new features, and help us make Gas Tracker even better. Your feedback = our fuel! Plus, you get bragging rights.</p>
+                <form id="beta-tester-form">
+                    <div class="form-group">
+                        <label for="beta-email">Email Address *</label>
+                        <input type="email" id="beta-email" name="email" required placeholder="your.email@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="beta-name">Name (Optional)</label>
+                        <input type="text" id="beta-name" name="name" placeholder="Your name">
+                    </div>
+                    <button type="submit" class="btn-primary" style="width: 100%;">⛽ Sign Me Up for Beta!</button>
+                    <div class="form-message" id="beta-message"></div>
+                </form>
+            </div>
+            <div class="email-form-card">
+                <h3>📢 Release Notifications (The Patient Ones)</h3>
+                <p>Get notified the moment Gas Tracker hits the app stores. We'll send you a celebratory email (with confetti emojis, probably)!</p>
+                <form id="release-form">
+                    <div class="form-group">
+                        <label for="release-email">Email Address *</label>
+                        <input type="email" id="release-email" name="email" required placeholder="your.email@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="release-name">Name (Optional)</label>
+                        <input type="text" id="release-name" name="name" placeholder="Your name">
+                    </div>
+                    <button type="submit" class="btn-primary" style="width: 100%;">🚗 Notify Me When It's Live!</button>
+                    <div class="form-message" id="release-message"></div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>⛽ Gas Tracker</h4>
+                <p style="color: #9ca3af; margin-top: 1rem; line-height: 1.7;">The app that finally answers the question: "Where did all my gas money go?" Track, analyze, and maybe cry a little. It's all part of the journey! 🚗💨</p>
+                <p style="color: #6b7280; margin-top: 1rem; font-size: 0.85rem; line-height: 1.5;">Built with ❤️, Expo, TypeScript, and enough caffeine to fuel a small country.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#how-it-works">How It Works</a></li>
+                    <li><a href="#screenshots">Screenshots</a></li>
+                    <li><a href="privacy.html">Privacy Policy</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact</h4>
+                <ul>
+                    <li><a href="mailto:surenjanath.singh@gmail.com">Email</a></li>
+                    <li><a href="https://github.com/surenjanath" target="_blank">GitHub</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p style="margin-bottom: 1rem;"><strong>⚠️ Legal Stuff:</strong> Gas Tracker is for informational purposes only. We're not responsible if you discover you've been spending more on gas than your car payment. Always drive safely, and remember: the best fuel efficiency comes from not driving like you're in a Fast & Furious movie. 🏎️</p>
+            <p>&copy; 2025 Surenjanath Singh. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+        
+        // Initialize Supabase
+        const SUPABASE_URL = 'https://yzlfpejflhpmofbtaaku.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl6bGZwZWpmbGhwbW9mYnRhYWt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0NjMzNjAsImV4cCI6MjA3OTAzOTM2MH0.dInC-biSsa4MUBqKwYrn7LqJogg-au43ligQedFR7dM';
+        
+        // Project configuration - Change this for each project
+        const PROJECT_KEY = 'gas-tracker';
+        
+        let supabase;
+        
+        // Only initialize if credentials are provided
+        if (SUPABASE_URL && SUPABASE_URL !== 'YOUR_SUPABASE_URL_HERE' && 
+            SUPABASE_ANON_KEY && SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY_HERE') {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        }
+        
+        // Email validation
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+        
+        // Show message
+        function showMessage(formId, message, isError = false) {
+            const messageEl = document.getElementById(formId + '-message');
+            messageEl.textContent = message;
+            messageEl.className = 'form-message ' + (isError ? 'error' : 'success');
+            
+            // Clear message after 5 seconds
+            setTimeout(() => {
+                messageEl.className = 'form-message';
+            }, 5000);
+        }
+        
+        // Beta Tester Form
+        document.getElementById('beta-tester-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('beta-email').value.trim();
+            const name = document.getElementById('beta-name').value.trim();
+            
+            if (!validateEmail(email)) {
+                showMessage('beta', 'Please enter a valid email address', true);
+                return;
+            }
+            
+            if (!supabase) {
+                showMessage('beta', 'Email collection is not configured. Please contact the developer.', true);
+                return;
+            }
+            
+            try {
+                // Use the RPC function to upsert (insert or update if email exists)
+                const { data, error } = await supabase.rpc('upsert_beta_tester', {
+                    p_email: email,
+                    p_name: name || null,
+                    p_project_key: PROJECT_KEY,
+                    p_source: 'website'
+                });
+                
+                if (error) {
+                    // Check if it's a project not found error
+                    if (error.message && error.message.includes('Project not found')) {
+                        showMessage('beta', 'Project configuration error. Please contact support.', true);
+                    } else {
+                        throw error;
+                    }
+                } else {
+                    showMessage('beta', 'Thank you! You have been added to our beta testing list.', false);
+                    document.getElementById('beta-tester-form').reset();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('beta', 'Something went wrong. Please try again later.', true);
+            }
+        });
+        
+        // Release Notifications Form
+        document.getElementById('release-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('release-email').value.trim();
+            const name = document.getElementById('release-name').value.trim();
+            
+            if (!validateEmail(email)) {
+                showMessage('release', 'Please enter a valid email address', true);
+                return;
+            }
+            
+            if (!supabase) {
+                showMessage('release', 'Email collection is not configured. Please contact the developer.', true);
+                return;
+            }
+            
+            try {
+                // Use the RPC function to upsert (insert or update if email exists)
+                const { data, error } = await supabase.rpc('upsert_release_notification', {
+                    p_email: email,
+                    p_name: name || null,
+                    p_project_key: PROJECT_KEY,
+                    p_source: 'website'
+                });
+                
+                if (error) {
+                    // Check if it's a project not found error
+                    if (error.message && error.message.includes('Project not found')) {
+                        showMessage('release', 'Project configuration error. Please contact support.', true);
+                    } else {
+                        throw error;
+                    }
+                } else {
+                    showMessage('release', 'Thank you! We will notify you when the app launches.', false);
+                    document.getElementById('release-form').reset();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('release', 'Something went wrong. Please try again later.', true);
+            }
+        });
+        
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

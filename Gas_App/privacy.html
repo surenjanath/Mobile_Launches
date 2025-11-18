@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Privacy Policy for Gas Tracker - Log fuel expenses, manage vehicles, and stay in control of your driving data.">
+    <title>Privacy Policy · Gas Tracker</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #1a1a1a;
+            background: linear-gradient(180deg, #FFF8E1 0%, #FFECB3 100%);
+        }
+        header {
+            background: linear-gradient(135deg, rgba(255, 248, 225, 0.98) 0%, rgba(255, 236, 179, 0.95) 100%);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(255, 184, 0, 0.15);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        nav {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: #003D82;
+            text-decoration: none;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        .logo:hover {
+            transform: scale(1.05) rotate(-2deg);
+        }
+        .nav-links {
+            display: flex;
+            gap: 1.75rem;
+            list-style: none;
+        }
+        .nav-links a {
+            color: #003D82;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .nav-links a::before {
+            content: '⛽';
+            margin-right: 0.5rem;
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.3s ease;
+        }
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: #003D82;
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+        .nav-links a:hover {
+            color: #003D82;
+            background: rgba(255, 255, 255, 0.4);
+            transform: translateY(-2px);
+        }
+        .nav-links a:hover::before {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+        .container {
+            max-width: 900px;
+            margin: 2rem auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(255, 184, 0, 0.2);
+            padding: 3rem;
+            border: 2px solid rgba(255, 184, 0, 0.2);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 4px solid #FFB800;
+            position: relative;
+        }
+        .header::before {
+            content: '⛽';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 2rem;
+            opacity: 0.3;
+            animation: pump 2s ease-in-out infinite;
+        }
+        .header::after {
+            content: '⛽';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 2rem;
+            opacity: 0.3;
+            animation: pump 2s ease-in-out infinite 0.5s;
+        }
+        @keyframes pump {
+            0%, 100% { transform: translateY(-50%) scale(1) rotate(0deg); }
+            50% { transform: translateY(-50%) scale(1.1) rotate(5deg); }
+        }
+        .header h1 {
+            color: #1a1a1a;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 800;
+        }
+        .header p { 
+            color: #4a5568;
+            font-size: 1.1rem;
+        }
+        .last-updated {
+            background: linear-gradient(135deg, #FFF8E1 0%, #FFECB3 100%);
+            padding: 1.25rem;
+            border-radius: 12px;
+            border-left: 4px solid #FFB800;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(255, 184, 0, 0.1);
+        }
+        h2 {
+            color: #1a1a1a;
+            font-size: 1.875rem;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+            position: relative;
+            padding-left: 2rem;
+        }
+        h2::before {
+            content: '⛽';
+            position: absolute;
+            left: 0;
+            top: 0;
+            font-size: 1.5rem;
+            opacity: 0.4;
+        }
+        h3 {
+            color: #003D82;
+            font-size: 1.35rem;
+            margin-top: 1.75rem;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+        p { 
+            margin-bottom: 1rem;
+            color: #4a5568;
+        }
+        ul { 
+            margin-left: 1.75rem; 
+            margin-bottom: 1.25rem;
+        }
+        li { 
+            margin-bottom: 0.5rem;
+            color: #4a5568;
+        }
+        .highlight {
+            background: linear-gradient(135deg, #FFF8E1 0%, #FFECB3 100%);
+            border-left: 4px solid #FFB800;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+            box-shadow: 0 4px 15px rgba(255, 184, 0, 0.15);
+        }
+        .highlight h3 {
+            color: #FF6B00;
+            margin-top: 0;
+        }
+        .contact-box {
+            background: linear-gradient(135deg, #FFF8E1 0%, #FFECB3 100%);
+            border: 3px solid #FFB800;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+            box-shadow: 0 4px 20px rgba(255, 184, 0, 0.2);
+        }
+        .contact-box h3 {
+            color: #003D82;
+            margin-top: 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 2.5rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid rgba(255, 184, 0, 0.3);
+            color: #4a5568;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 1.5rem;
+            color: #003D82;
+            border: 3px solid #FFB800;
+            background: linear-gradient(135deg, #FFB800 0%, #FF6B00 100%);
+            padding: 0.75rem 2rem;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(255, 184, 0, 0.3);
+        }
+        .back-link:hover { 
+            background: linear-gradient(135deg, #FF6B00 0%, #FFB800 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 0, 0.4);
+        }
+        a { 
+            color: #003D82;
+            transition: color 0.3s;
+        }
+        a:hover {
+            color: #FF6B00;
+        }
+        @media (max-width: 768px) {
+            .container { padding: 1.75rem; margin: 1rem; }
+            .nav-links { display: none; }
+            .header h1 { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="index.html" class="logo">⛽ Gas&nbsp;Tracker</a>
+            <ul class="nav-links">
+                <li><a href="index.html">🏠 Home</a></li>
+                <li><a href="index.html#features">🎯 The Goods</a></li>
+                <li><a href="index.html#how-it-works">⚙️ How It Works</a></li>
+                <li><a href="index.html#screenshots">📸 Eye Candy</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="header">
+            <h1>Privacy Policy ⛽</h1>
+            <p>Your data, your control. We're just here to help you track gas, not spy on you! 🚗</p>
+        </div>
+
+        <div class="last-updated">
+            <strong>Last Updated:</strong> January 15, 2025<br>
+            <strong>Effective Date:</strong> January 15, 2025
+        </div>
+
+        <h2>Introduction</h2>
+        <p>Gas Tracker (“Gas Tracker,” “we,” “us,” or “our”) respects your privacy. This Privacy Policy describes what information we collect, how we use it, and the control you have over your driving data when using the Gas Tracker mobile application (“App”). By installing or using the App, you consent to the practices outlined here. If you disagree with this policy, please uninstall the App and contact us.</p>
+
+        <h2>Information We Collect</h2>
+
+        <h3>1. Fuel & Expense Entries</h3>
+        <ul>
+            <li><strong>What:</strong> Date, station/location description, odometer reading, fuel quantity, unit price, total cost, payment type, notes, associated vehicle.</li>
+            <li><strong>Why:</strong> To calculate MPG, cost-per-mile, and analytics.</li>
+            <li><strong>Where stored:</strong> Locally on your device and in Supabase only if you enable sync.</li>
+        </ul>
+
+        <h3>2. Payments & Cash Flow</h3>
+        <ul>
+            <li><strong>What:</strong> Payment date, amount, source (e.g., reimbursement, corporate card), type, and notes.</li>
+            <li><strong>Why:</strong> To reconcile expenses versus payments and display balances.</li>
+            <li><strong>Where stored:</strong> Locally/offline by default; synced when cloud backup is enabled.</li>
+        </ul>
+
+        <h3>3. Vehicles & Maintenance</h3>
+        <ul>
+            <li><strong>What:</strong> Vehicle make/model/year, VIN (optional), license plate, mileage, service intervals, maintenance history, preferred fuel type.</li>
+            <li><strong>Why:</strong> To show per-vehicle analytics, reminders, and service history.</li>
+        </ul>
+
+        <h3>4. Profile & Settings (Optional)</h3>
+        <ul>
+            <li><strong>What:</strong> Display name, email, avatar URL, notification settings, preferred units/currency/theme, sync settings.</li>
+            <li><strong>Why:</strong> To personalize the App and allow multi-device sync.</li>
+        </ul>
+
+        <h3>5. Diagnostics & Analytics (Optional)</h3>
+        <ul>
+            <li><strong>What:</strong> Screen usage, anonymous identifiers, device model, OS version, app version, crash logs.</li>
+            <li><strong>Why:</strong> To fix bugs, measure performance, and guide product improvements.</li>
+            <li><strong>Control:</strong> Disable analytics anytime in Settings → Privacy.</li>
+        </ul>
+
+        <h3>6. Support Communications</h3>
+        <ul>
+            <li><strong>What:</strong> Email address, name, and the contents of your support request.</li>
+            <li><strong>Why:</strong> To respond to inquiries and resolve issues.</li>
+        </ul>
+
+        <div class="highlight">
+            <h3>What We Do NOT Collect</h3>
+            <ul>
+                <li>Precise GPS location or background location data.</li>
+                <li>Banking credentials or payment card numbers.</li>
+                <li>Contact lists, calendars, SMS, or photos (unless you explicitly attach them in a future feature).</li>
+                <li>Sensitive categories such as race, religion, or biometric identifiers.</li>
+                <li>Advertising identifiers for ad tracking—we do not run ads.</li>
+            </ul>
+        </div>
+
+        <h2>How We Use Your Information</h2>
+        <ul>
+            <li>Provide core App functionality (logging fuel, payments, vehicles, and maintenance).</li>
+            <li>Compute analytics, charts, reminders, and exports.</li>
+            <li>Sync data to Supabase when you opt in, enabling multi-device access.</li>
+            <li>Send optional transactional communications (e.g., sync alerts, beta updates).</li>
+            <li>Improve stability and feature prioritization through optional analytics.</li>
+            <li>Comply with legal obligations and respond to lawful requests.</li>
+        </ul>
+
+        <h2>Legal Bases (GDPR)</h2>
+        <p>Where GDPR applies, we rely on: (a) performance of a contract to operate the App, (b) legitimate interests to improve features and prevent abuse, (c) consent for optional analytics/emails, and (d) legal obligations for compliance.</p>
+
+        <h2>Data Storage, Security & Retention</h2>
+        <h3>Local Storage</h3>
+        <p>All logs, vehicles, and settings are stored in encrypted device storage (AsyncStorage). Clearing data or uninstalling removes this information.</p>
+        <h3>Cloud Sync (Optional)</h3>
+        <p>When enabled, data is encrypted in transit (TLS) and stored in Supabase projects hosted in ISO-certified data centers with row-level security rules to isolate each user.</p>
+        <h3>Retention</h3>
+        <ul>
+            <li>Local data persists until you delete it.</li>
+            <li>Synced data is retained until you delete your Supabase profile or request deletion.</li>
+            <li>Diagnostics are kept up to 24 months.</li>
+        </ul>
+
+        <h2>Third-Party Services</h2>
+        <ul>
+            <li><strong>Supabase:</strong> Authentication, database, file storage. <a href="https://supabase.com/privacy" target="_blank" rel="noreferrer">Privacy Policy</a>.</li>
+            <li><strong>Expo / Apple / Google:</strong> Required for push notifications, updates, and crash reporting at the OS level.</li>
+            <li><strong>Email Providers:</strong> We use standard email services (e.g., Gmail/Outlook) to respond to support requests.</li>
+        </ul>
+        <p>No advertising SDKs or third-party analytics networks are embedded in Gas Tracker.</p>
+
+        <h2>Data Sharing</h2>
+        <p>We do not sell or rent personal data. We may share data only when required by law, to protect our rights, prevent fraud, or as aggregated/anonymized analytics that cannot identify you. If Gas Tracker is involved in a merger or acquisition, we will notify you and ensure proper safeguards.</p>
+
+        <h2>Your Rights & Controls</h2>
+        <ul>
+            <li><strong>Access & Portability:</strong> Export data via Settings or email us.</li>
+            <li><strong>Correction:</strong> Edit entries directly in the App; contact us for help.</li>
+            <li><strong>Deletion:</strong> Clear local data in Settings or delete Supabase backups. Email us for full removal.</li>
+            <li><strong>Analytics Opt-Out:</strong> Toggle in Settings → Privacy.</li>
+            <li><strong>Email Preferences:</strong> Unsubscribe via the email footer or Settings.</li>
+            <li><strong>Permissions:</strong> Manage OS permissions (camera, notifications, etc.) in your device settings.</li>
+        </ul>
+
+        <h2>International Data Transfers</h2>
+        <p>Supabase may store data in the United States or other regions. We rely on Standard Contractual Clauses and other safeguards to protect your data when transferred abroad.</p>
+
+        <h2>Children’s Privacy</h2>
+        <p>The App is not intended for children under 13. We do not knowingly collect personal information from children. If you believe a child provided data, contact us and we will delete it.</p>
+
+        <h2>Security</h2>
+        <p>We use TLS encryption, Supabase row-level security, and least-privilege access controls. However, no system is perfectly secure. Protect your device with a passcode or biometrics and keep operating systems updated.</p>
+
+        <h2>Changes to This Policy</h2>
+        <p>We may update this policy as the App evolves. We will update the “Last Updated” date and notify you in-app or via email for material changes. Continued use after the effective date indicates acceptance.</p>
+
+        <h2>Region-Specific Rights</h2>
+        <h3>California (CCPA)</h3>
+        <ul>
+            <li>Right to know, delete, and access personal information.</li>
+            <li>Right to opt out of sale (we do not sell data).</li>
+            <li>Right to non-discrimination for exercising privacy rights.</li>
+        </ul>
+        <h3>European Union (GDPR)</h3>
+        <ul>
+            <li>Rights to access, rectify, erase, restrict, object, port data, and withdraw consent.</li>
+            <li>Right to lodge a complaint with your local supervisory authority.</li>
+        </ul>
+
+        <div class="contact-box">
+            <h3>Contact Us</h3>
+            <p>Questions or requests about privacy?</p>
+            <p>
+                <strong>Developer:</strong> Surenjanath Singh<br>
+                <strong>Email:</strong> <a href="mailto:surenjanath.singh@gmail.com">surenjanath.singh@gmail.com</a><br>
+                <strong>GitHub:</strong> <a href="https://github.com/surenjanath" target="_blank" rel="noreferrer">github.com/surenjanath</a>
+            </p>
+        </div>
+
+        <h2>Consent</h2>
+        <p>By using Gas Tracker, you acknowledge that you have read, understood, and agree to this Privacy Policy.</p>
+
+        <div class="footer">
+            <p><strong>Gas Tracker v1.0.0</strong> · © 2025 Surenjanath Singh. All rights reserved.</p>
+            <a href="index.html" class="back-link">← Back to Home</a>
+        </div>
+    </div>
+</body>
+</html>
+
