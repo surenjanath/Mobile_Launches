@@ -167,7 +167,11 @@ jobs:
       - name: Check for changes
         id: verify-changed-files
         run: |
-          if [ -n "$(git status --porcelain Readme.md README.md index.html 2>/dev/null)" ]; then
+          changed_files=""
+          [ -f Readme.md ] && changed_files="$changed_files Readme.md"
+          [ -f README.md ] && changed_files="$changed_files README.md"
+          [ -f index.html ] && changed_files="$changed_files index.html"
+          if [ -n "$changed_files" ] && [ -n "$(git status --porcelain $changed_files 2>/dev/null)" ]; then
             echo "changed=true" >> $GITHUB_OUTPUT
           else
             echo "changed=false" >> $GITHUB_OUTPUT
@@ -178,7 +182,10 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add Readme.md README.md index.html
+          # Add files that exist
+          [ -f Readme.md ] && git add Readme.md || true
+          [ -f README.md ] && git add README.md || true
+          [ -f index.html ] && git add index.html || true
           git commit -m "Auto-update README and index.html: Add new apps" || exit 0
           git push
 

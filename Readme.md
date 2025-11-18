@@ -36,7 +36,7 @@ To add a new app to this repository:
 ## 🛠️ Repository Structure
 
 ```
-Mobile_App_Launches/
+Mobile_Launches/
 ├── Readme.md (this file)
 ├── Gas_App/
 │   ├── README.md
