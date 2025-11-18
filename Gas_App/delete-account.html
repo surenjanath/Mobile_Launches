@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Request account deletion for Gas Tracker - Delete your account and all associated data from Supabase">
+    <title>Delete Account · Gas Tracker</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FFB800;
+            --primary-dark: #FF6B00;
+            --primary-light: #FFD54F;
+            --secondary: #003D82;
+            --accent: #E63946;
+            --text-dark: #1a1a1a;
+            --text-gray: #4a5568;
+            --bg-light: #FFF8E1;
+            --bg-white: #ffffff;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(255, 184, 0, 0.2);
+            --shadow-xl: 0 20px 25px -5px rgba(255, 107, 0, 0.2);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background: linear-gradient(180deg, #FFF8E1 0%, #FFECB3 100%);
+            min-height: 100vh;
+        }
+        
+        /* Header */
+        header {
+            background: linear-gradient(135deg, rgba(255, 248, 225, 0.98) 0%, rgba(255, 236, 179, 0.95) 100%);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(255, 184, 0, 0.15);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        nav {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--secondary);
+            text-decoration: none;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .logo:hover {
+            transform: scale(1.05) rotate(-2deg);
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 1.75rem;
+            list-style: none;
+        }
+        
+        .nav-links a {
+            color: var(--secondary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        /* Container */
+        .container {
+            max-width: 800px;
+            margin: 3rem auto;
+            padding: 0 2rem;
+        }
+        
+        .content-card {
+            background: var(--bg-white);
+            border-radius: 16px;
+            box-shadow: var(--shadow-xl);
+            padding: 3rem;
+            border: 2px solid rgba(255, 184, 0, 0.2);
+        }
+        
+        .warning-box {
+            background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);
+            border-left: 4px solid var(--accent);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .warning-box h3 {
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .info-box {
+            background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
+            border-left: 4px solid var(--secondary);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .info-box h3 {
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin: 2rem 0 1rem;
+        }
+        
+        h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        p {
+            color: var(--text-gray);
+            margin-bottom: 1rem;
+            line-height: 1.7;
+        }
+        
+        ul {
+            margin: 1rem 0;
+            padding-left: 2rem;
+        }
+        
+        li {
+            color: var(--text-gray);
+            margin-bottom: 0.5rem;
+            line-height: 1.7;
+        }
+        
+        /* Form Styles */
+        .form-section {
+            margin: 3rem 0;
+            padding: 2rem;
+            background: linear-gradient(135deg, #FFF8E1 0%, #FFECB3 100%);
+            border-radius: 12px;
+            border: 2px solid rgba(255, 184, 0, 0.3);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+        
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.875rem;
+            border: 2px solid rgba(255, 184, 0, 0.3);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(255, 184, 0, 0.1);
+        }
+        
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin: 1.5rem 0;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin-top: 0.25rem;
+            cursor: pointer;
+        }
+        
+        .checkbox-group label {
+            font-weight: 500;
+            cursor: pointer;
+            line-height: 1.5;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: var(--secondary);
+            border: 2px solid var(--secondary);
+            padding: 0.875rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            margin-top: 1rem;
+        }
+        
+        .btn-secondary:hover {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .form-message {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+            font-weight: 500;
+            display: none;
+        }
+        
+        .form-message.success {
+            background: #E8F5E9;
+            color: #2E7D32;
+            border: 2px solid #4CAF50;
+            display: block;
+        }
+        
+        .form-message.error {
+            background: #FFEBEE;
+            color: #C62828;
+            border: 2px solid #E53935;
+            display: block;
+        }
+        
+        .email-link {
+            color: var(--secondary);
+            font-weight: 600;
+            text-decoration: none;
+            border-bottom: 2px solid var(--secondary);
+            transition: all 0.3s ease;
+        }
+        
+        .email-link:hover {
+            color: var(--primary-dark);
+            border-bottom-color: var(--primary-dark);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+            
+            .content-card {
+                padding: 2rem 1.5rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="index.html" class="logo">⛽ Gas Tracker</a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="privacy.html">Privacy</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="content-card">
+            <h1>🗑️ Delete Your Account</h1>
+            <p style="text-align: center; font-size: 1.1rem; margin-bottom: 2rem;">
+                We're sorry to see you go! To delete your Gas Tracker account, please enter your email address below.
+            </p>
+
+            <div class="warning-box">
+                <h3>⚠️ Important: This Action Cannot Be Undone</h3>
+                <p>Deleting your account will permanently remove all your data including expenses, vehicles, and account information. This process is irreversible.</p>
+            </div>
+
+            <div class="form-section">
+                <h2>📧 Request Account Deletion</h2>
+                <p>Enter the email address associated with your Gas Tracker account:</p>
+                
+                <form id="deletion-form">
+                    <div class="form-group">
+                        <label for="email">Email Address *</label>
+                        <input type="email" id="email" name="email" required placeholder="your.email@example.com">
+                        <small style="color: var(--text-gray); font-size: 0.9rem;">Enter the email address you used to sign up for Gas Tracker</small>
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="confirm" name="confirm" required>
+                        <label for="confirm">
+                            I understand that deleting my account will permanently remove all my data and this action cannot be undone. *
+                        </label>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary" id="submit-btn">
+                        🗑️ Submit Deletion Request
+                    </button>
+                    
+                    <div class="form-message" id="form-message"></div>
+                </form>
+            </div>
+
+            <div class="info-box" style="margin-top: 2rem;">
+                <h3>ℹ️ What Happens Next?</h3>
+                <p>After you submit your request:</p>
+                <ul>
+                    <li>You'll receive a confirmation email within 24-48 hours</li>
+                    <li>Your account and all data will be permanently deleted</li>
+                    <li>You'll receive a final confirmation once the deletion is complete</li>
+                </ul>
+                <p style="margin-top: 1rem;"><strong>Processing Time:</strong> Account deletions are typically processed within 2-3 business days.</p>
+            </div>
+
+            <div style="margin-top: 3rem; padding: 2rem; background: #F5F5F5; border-radius: 12px; text-align: center;">
+                <h3>📮 Alternative: Email Directly</h3>
+                <p>You can also send your deletion request directly via email:</p>
+                <p style="margin: 1rem 0;">
+                    <a href="mailto:surenjanath.singh@gmail.com?subject=Gas Tracker Account Deletion Request&body=Please delete my Gas Tracker account.%0D%0A%0D%0AEmail: [Your email address]" class="email-link">
+                        surenjanath.singh@gmail.com
+                    </a>
+                </p>
+                <p style="font-size: 0.9rem; color: var(--text-gray);">
+                    Please include your account email address in the email.
+                </p>
+            </div>
+
+            <div style="margin-top: 2rem; text-align: center;">
+                <a href="index.html" class="btn-secondary">← Back to Home</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Supabase
+        const SUPABASE_URL = 'https://yzlfpejflhpmofbtaaku.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl6bGZwZWpmbGhwbW9mYnRhYWt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0NjMzNjAsImV4cCI6MjA3OTAzOTM2MH0.dInC-biSsa4MUBqKwYrn7LqJogg-au43ligQedFR7dM';
+        
+        let supabase;
+        
+        if (SUPABASE_URL && SUPABASE_ANON_KEY) {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        }
+        
+        // Email validation
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+        
+        // Show message
+        function showMessage(message, isError = false) {
+            const messageEl = document.getElementById('form-message');
+            messageEl.textContent = message;
+            messageEl.className = 'form-message ' + (isError ? 'error' : 'success');
+            
+            // Scroll to message
+            messageEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            
+            // Clear message after 8 seconds
+            setTimeout(() => {
+                messageEl.className = 'form-message';
+            }, 8000);
+        }
+        
+        // Handle form submission
+        document.getElementById('deletion-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submit-btn');
+            const email = document.getElementById('email').value.trim();
+            const confirmed = document.getElementById('confirm').checked;
+            
+            // Validation
+            if (!validateEmail(email)) {
+                showMessage('Please enter a valid email address', true);
+                return;
+            }
+            
+            if (!confirmed) {
+                showMessage('Please confirm that you understand this action cannot be undone', true);
+                return;
+            }
+            
+            // Disable submit button
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+            
+            if (!supabase) {
+                // Fallback to mailto if Supabase is not configured
+                const subject = encodeURIComponent('Gas Tracker Account Deletion Request');
+                const body = encodeURIComponent(
+                    `Please delete my Gas Tracker account.\n\n` +
+                    `Email: ${email}`
+                );
+                window.location.href = `mailto:surenjanath.singh@gmail.com?subject=${subject}&body=${body}`;
+                showMessage('Opening your email client. Please send the email to complete your request.', false);
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🗑️ Submit Deletion Request';
+                return;
+            }
+            
+            try {
+                // Insert deletion request into Supabase
+                const { data, error } = await supabase
+                    .from('account_deletion_requests')
+                    .insert([
+                        {
+                            email: email,
+                            project_key: 'gas-tracker',
+                            status: 'pending',
+                            requested_at: new Date().toISOString()
+                        }
+                    ]);
+                
+                if (error) {
+                    // If table doesn't exist, fallback to mailto
+                    if (error.message && error.message.includes('relation') && error.message.includes('does not exist')) {
+                        const subject = encodeURIComponent('Gas Tracker Account Deletion Request');
+                        const body = encodeURIComponent(
+                            `Please delete my Gas Tracker account.\n\n` +
+                            `Email: ${email}`
+                        );
+                        window.location.href = `mailto:surenjanath.singh@gmail.com?subject=${subject}&body=${body}`;
+                        showMessage('Opening your email client. Please send the email to complete your request.', false);
+                    } else {
+                        throw error;
+                    }
+                } else {
+                    showMessage('✅ Your deletion request has been submitted successfully! You will receive a confirmation email within 24-48 hours. Thank you for using Gas Tracker.', false);
+                    document.getElementById('deletion-form').reset();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('Something went wrong. Please try using the email link below or contact surenjanath.singh@gmail.com directly.', true);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🗑️ Submit Deletion Request';
+            }
+        });
+    </script>
+</body>
+</html>
+

@@ -989,9 +989,11 @@
         });
         
         // Initialize Supabase
-        // NOTE: Replace these with your actual Supabase credentials
-        const SUPABASE_URL = 'https://roqczhmpqsyymzvfebmh.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJvcWN6aG1wcXN5eW16dmZlYm1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzNDkyNzYsImV4cCI6MjA2OTkyNTI3Nn0.4T15ytZ51hQPEocb9gHpMEGn_DfxrxuXO-ACOFgesLA';
+        const SUPABASE_URL = 'https://yzlfpejflhpmofbtaaku.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl6bGZwZWpmbGhwbW9mYnRhYWt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0NjMzNjAsImV4cCI6MjA3OTAzOTM2MH0.dInC-biSsa4MUBqKwYrn7LqJogg-au43ligQedFR7dM';
+        
+        // Project configuration - Change this for each project
+        const PROJECT_KEY = 'price-analysis';
         
         let supabase;
         
@@ -1037,20 +1039,18 @@
             }
             
             try {
-                const { error } = await supabase
-                    .from('beta_testers')
-                    .insert([
-                        {
-                            email: email,
-                            name: name || null,
-                            signup_date: new Date().toISOString(),
-                            source: 'website'
-                        }
-                    ]);
+                // Use the RPC function to upsert (insert or update if email exists)
+                const { data, error } = await supabase.rpc('upsert_beta_tester', {
+                    p_email: email,
+                    p_name: name || null,
+                    p_project_key: PROJECT_KEY,
+                    p_source: 'website'
+                });
                 
                 if (error) {
-                    if (error.code === '23505') { // Duplicate key
-                        showMessage('beta', 'You are already signed up for beta testing!', false);
+                    // Check if it's a project not found error
+                    if (error.message && error.message.includes('Project not found')) {
+                        showMessage('beta', 'Project configuration error. Please contact support.', true);
                     } else {
                         throw error;
                     }
@@ -1082,20 +1082,18 @@
             }
             
             try {
-                const { error } = await supabase
-                    .from('release_notifications')
-                    .insert([
-                        {
-                            email: email,
-                            name: name || null,
-                            signup_date: new Date().toISOString(),
-                            source: 'website'
-                        }
-                    ]);
+                // Use the RPC function to upsert (insert or update if email exists)
+                const { data, error } = await supabase.rpc('upsert_release_notification', {
+                    p_email: email,
+                    p_name: name || null,
+                    p_project_key: PROJECT_KEY,
+                    p_source: 'website'
+                });
                 
                 if (error) {
-                    if (error.code === '23505') { // Duplicate key
-                        showMessage('release', 'You are already signed up for release notifications!', false);
+                    // Check if it's a project not found error
+                    if (error.message && error.message.includes('Project not found')) {
+                        showMessage('release', 'Project configuration error. Please contact support.', true);
                     } else {
                         throw error;
                     }
